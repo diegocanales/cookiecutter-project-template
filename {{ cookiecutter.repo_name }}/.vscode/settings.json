@@ -1,0 +1,9 @@
+{
+    "python.defaultInterpreterPath": "~/miniconda3/envs/{{ cookiecutter.conda_env }}/",
+    "python.linting.flake8Enabled": true,
+    "python.linting.flake8Path": "~/miniconda3/envs/{{ cookiecutter.conda_env }}/bin/flake8",
+    "python.formatting.provider": "autopep8",
+    "python.formatting.autopep8Path": "~/miniconda3/envs/{{ cookiecutter.conda_env }}/bin/autopep8",
+    "autoDocstring.docstringFormat": "google",
+    "editor.rulers": [80,120]
+}
