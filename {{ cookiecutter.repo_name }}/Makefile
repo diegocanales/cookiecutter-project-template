@@ -6,10 +6,11 @@ PACKAGE_NAME = {{ cookiecutter.package_name }}
 define VSCODE_SETTINGS
 {\n
 \t"python.defaultInterpreterPath": "$(shell dirname $(shell dirname $(shell which conda)))/envs/$(CONDA_ENV_NAME)/",\n
-\t"python.linting.pylamaEnabled": true,\n
-\t"python.linting.pylamaPath": "$(shell dirname $(shell dirname $(shell which conda)))/envs/$(CONDA_ENV_NAME)/bin/pylama",\n
+\t"python.linting.flake8Enabled": true,\n
+\t"python.linting.flake8Path": "$(shell dirname $(shell dirname $(shell which conda)))/envs/$(CONDA_ENV_NAME)/bin/flake8",\n
 \t"python.formatting.provider": "autopep8",\n
 \t"python.formatting.autopep8Path": "$(shell dirname $(shell dirname $(shell which conda)))/envs/$(CONDA_ENV_NAME)/bin/autopep8",\n
+\t"autoDocstring.docstringFormat": "google",\n
 \t"editor.rulers": [80,120],\n}\n
 endef
 
@@ -72,11 +73,11 @@ docs-nb: ## Add notebooks to documentation folder.
 
 .PHONY: docs-api
 docs-api: ## Creates the package documentation.
-	sphinx-apidoc -f --separate --doc-project "Python API Reference" --tocfile "index" -o docs/source/api . setup.py --ext-viewcode --ext-todo --ext-autodoc
+	conda run --no-capture-output -n $(CONDA_ENV_NAME) sphinx-apidoc -f --separate --doc-project "Python API Reference" --tocfile "index" -o docs/source/api . setup.py --ext-viewcode --ext-todo --ext-autodoc
 
 .PHONY: docs-build
 docs-build: ## Build the HTML documentation files.
-	sphinx-build -b html docs/source docs/html/
+	conda run --no-capture-output -n $(CONDA_ENV_NAME) sphinx-build -b html docs/source docs/html/
 
 .PHONY: docs
 docs: docs-clean docs-api docs-nb docs-build  ## Create the Sphinx documentation.
@@ -84,7 +85,7 @@ docs: docs-clean docs-api docs-nb docs-build  ## Create the Sphinx documentation
 
 .PHONY: docs-serve
 docs-serve: ## Serve the documentation and rebuilt on changes.
-	sphinx-autobuild docs/source/ docs/html --watch $(PACKAGE_NAME) --pre-build 'sphinx-apidoc -f --separate --doc-project "Python API Reference" --tocfile "index" -o docs/source/api . setup.py --ext-viewcode --ext-todo  --ext-autodoc --extensions "sphinx.ext.autosummary"'
+	conda run --no-capture-output -n $(CONDA_ENV_NAME) sphinx-autobuild docs/source/ docs/html --watch $(PACKAGE_NAME) --pre-build 'sphinx-apidoc -f --separate --doc-project "Python API Reference" --tocfile "index" -o docs/source/api . setup.py --ext-viewcode --ext-todo  --ext-autodoc --extensions "sphinx.ext.autosummary"'
 
 export VSCODE_SETTINGS
 .PHONY: vscode-settings
@@ -104,4 +105,12 @@ export TAGS_COMMITS_MSG
 .PHONY: tags-commits
 tags-commits: ## Tags commits reminder.
 	@echo $${TAGS_COMMITS_MSG}
+
+.PHONY: pre-commit
+pre-commit: # Pre-commit configuration
+	conda run --no-capture-output -n $(CONDA_ENV_NAME) pre-commit install
+	
+.PHONY: init
+init: env-f vscode-settings pre-commit ## Init project.
+	@echo "Init project"
 

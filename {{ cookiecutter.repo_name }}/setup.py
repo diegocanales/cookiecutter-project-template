@@ -17,6 +17,7 @@ dev_packages = [
     "flake8",
     "isort",
     "autopep8",
+    "pre-commit"
 ]
 
 docs_packages = [
